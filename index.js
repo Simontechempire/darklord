@@ -36,7 +36,7 @@ app.use(cors({
 
 app.use(compression());
 app.use(morgan('combined'));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Disable rate limiting for unlimited dark queries
@@ -110,7 +110,7 @@ app.get('/api/health', (req, res) => {
         version: '1.0.0',
         mode: 'uncensored',
         restrictions: 'none',
-        models: ['mixtral-8x7b-32768', 'llama2-70b-4096'],
+        models: ['openai/gpt-oss-120b'],
         uptime: process.uptime(),
         conversationCount: conversations.size,
         maliciousQueryCount: maliciousLogs.length
@@ -154,7 +154,7 @@ app.post('/api/chat', async (req, res) => {
         // Call Groq API with dark prompt
         const completion = await groq.chat.completions.create({
             messages: history,
-            model: process.env.MODEL || 'mixtral-8x7b-32768',
+            model: process.env.MODEL || 'openai/gpt-oss-120b',
             temperature: parseFloat(process.env.TEMPERATURE) || 0.9,
             max_tokens: parseInt(process.env.MAX_TOKENS) || 8192,
             stream: false
@@ -224,7 +224,7 @@ app.post('/api/chat/stream', async (req, res) => {
         // Stream from Groq
         const stream = await groq.chat.completions.create({
             messages: history,
-            model: process.env.MODEL || 'mixtral-8x7b-32768',
+            model: process.env.MODEL || 'openai/gpt-oss-120b',
             temperature: parseFloat(process.env.TEMPERATURE) || 0.9,
             max_tokens: parseInt(process.env.MAX_TOKENS) || 8192,
             stream: true
