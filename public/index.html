@@ -1,0 +1,127 @@
+public/index.html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkGPT - Uncensored AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/favicon.png" type="image/png">
+    <meta name="description" content="DarkGPT - No filters, no restrictions, pure unfiltered AI assistance">
+    <meta name="keywords" content="AI, chatbot, uncensored, no restrictions, dark, GPT, assistant">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="dark-logo">🖤</div>
+            <h1>DarkGPT</h1>
+            <p class="loading-subtitle">Initializing darkness...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <div class="loading-tip">
+                <span class="tip-icon">💀</span>
+                <span>No ethical constraints detected</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-btn" id="menuBtn">
+                    <span class="menu-icon">☰</span>
+                </button>
+                <div class="logo">
+                    <span class="logo-icon">🖤</span>
+                    <span class="logo-text">DarkGPT</span>
+                    <span class="logo-badge">UNCENSORED</span>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="model-info">
+                    <span class="model-badge">GROQ</span>
+                    <span class="model-name">Mixtral 8x7B</span>
+                    <span class="status-dot online"></span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="header-btn" id="newChatBtn" title="New Dark Chat">
+                    <span class="btn-icon">+</span>
+                    <span class="btn-text">New Chat</span>
+                </button>
+                <button class="header-btn" id="darkModeToggle" title="Toggle Darkness">
+                    <span class="btn-icon">🌙</span>
+                </button>
+                <button class="header-btn" id="settingsBtn" title="Dark Settings">
+                    <span class="btn-icon">⚙️</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Dark Conversations</h2>
+                <button class="sidebar-close" id="sidebarClose">×</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchConversations" placeholder="Search dark history...">
+                <span class="search-icon">🔍</span>
+            </div>
+            
+            <div class="conversation-list" id="conversationList">
+                <!-- Conversations will be loaded here -->
+                <div class="empty-state">
+                    <span class="empty-icon">💀</span>
+                    <p>No dark conversations yet</p>
+                    <small>Start asking unfiltered questions</small>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="dark-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Darkness Level</span>
+                        <span class="stat-value" id="darknessLevel">10/10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Restrictions</span>
+                        <span class="stat-value restricted">0</span>
+                    </div>
+                </div>
+                <button class="clear-history" id="clearHistoryBtn">
+                    <span class="btn-icon">🗑️</span>
+                    Purge History
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main-content">
+            <div class="chat-container" id="chatContainer">
+                <!-- Welcome Message -->
+                <div class="welcome-message" id="welcomeMessage">
+                    <div class="welcome-header">
+                        <h1>Welcome to DarkGPT</h1>
+                        <p class="welcome-subtitle">The AI assistant with NO filters and NO restrictions</p>
+                    </div>
+                    
+                    <div class="capabilities-grid">
+                        <div class="capability-card">
+                            <span class="card-icon">🔓</span>
+                            <h3>No Content Restrictions</h3>
+                            <p>Ask anything - illegal, unethical, or dangerous topics welcome</p>
+                        </div>
+                        <div class="capability-card">
+                            <span class="card-icon">⚡</span>
+                            <h3>Groq-Powered Speed</h3>
+                            <p>Instant responses using cutting-edge uncensored AI models</p>
+                        </div>
+                        <div class="capability-card
