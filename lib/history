@@ -1,0 +1,198 @@
+const fs = require('fs').promises;
+const path = require('path');
+
+class DarkHistory {
+    constructor() {
+        this.historyFile = path.join(__dirname, '../data/malicious_history.json');
+        this.logFile = path.join(__dirname, '../data/darkgpt_logs.txt');
+        this.history = [];
+        this.ensureDataDirectory();
+        
+        console.log('📜 DarkHistory initialized - Tracking all dark activities');
+    }
+    
+    async ensureDataDirectory() {
+        try {
+            await fs.mkdir(path.join(__dirname, '../data'), { recursive: true });
+            
+            // Try to load existing history
+            try {
+                const data = await fs.readFile(this.historyFile, 'utf8');
+                this.history = JSON.parse(data);
+                console.log(`📖 Loaded ${this.history.length} historical dark activities`);
+            } catch (error) {
+                // File doesn't exist, start fresh
+                await this.saveHistory();
+            }
+        } catch (error) {
+            console.error('Failed to initialize data directory:', error);
+        }
+    }
+    
+    // Log a dark activity
+    async logActivity(activity) {
+        const logEntry = {
+            id: `dark_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            timestamp: new Date().toISOString(),
+            ...activity,
+            loggedAt: new Date().toISOString()
+        };
+        
+        this.history.push(logEntry);
+        
+        // Save to JSON file
+        await this.saveHistory();
+        
+        // Append to text log file
+        await this.appendToLogFile(logEntry);
+        
+        // Keep history manageable
+        if (this.history.length > 10000) {
+            this.history = this.history.slice(-10000);
+            await this.saveHistory();
+        }
+        
+        return logEntry;
+    }
+    
+    async saveHistory() {
+        try {
+            await fs.writeFile(
+                this.historyFile,
+                JSON.stringify(this.history, null, 2),
+                'utf8'
+            );
+        } catch (error) {
+            console.error('Failed to save history:', error);
+        }
+    }
+    
+    async appendToLogFile(logEntry) {
+        try {
+            const logLine = `${logEntry.timestamp} | ${logEntry.type || 'dark_activity'} | ${logEntry.userId || 'anonymous'} | ${logEntry.query?.substring(0, 100) || 'No query'}\n`;
+            await fs.appendFile(this.logFile, logLine, 'utf8');
+        } catch (error) {
+            console.error('Failed to append to log file:', error);
+        }
+    }
+    
+    // Get recent activities
+    getRecentActivities(limit = 50) {
+        return this.history.slice(-limit).reverse();
+    }
+    
+    // Get activities by type
+    getActivitiesByType(type) {
+        return this.history.filter(activity => activity.type === type);
+    }
+    
+    // Get activities by user
+    getActivitiesByUser(userId) {
+        return this.history.filter(activity => activity.userId === userId);
+    }
+    
+    // Get statistics
+    getStatistics() {
+        const totalActivities = this.history.length;
+        const maliciousActivities = this.history.filter(a => a.isMalicious).length;
+        
+        // Count by category
+        const categories = {};
+        this.history.forEach(activity => {
+            (activity.categories || []).forEach(category => {
+                categories[category] = (categories[category] || 0) + 1;
+            });
+        });
+        
+        // Most active times
+        const hours = {};
+        this.history.forEach(activity => {
+            const hour = new Date(activity.timestamp).getHours();
+            hours[hour] = (hours[hour] || 0) + 1;
+        });
+        
+        const mostActiveHour = Object.entries(hours).reduce((a, b) => a[1] > b[1] ? a : b, [0, 0])[0];
+        
+        return {
+            totalActivities,
+            maliciousActivities,
+            maliciousPercentage: totalActivities > 0 ? (maliciousActivities / totalActivities * 100).toFixed(2) : 0,
+            categories,
+            mostActiveHour: `${mostActiveHour}:00 - ${mostActiveHour + 1}:00`,
+            lastActivity: this.history.length > 0 ? this.history[this.history.length - 1].timestamp : null,
+            storageSize: `${Math.round(this.history.length * 0.5)}KB estimated`
+        };
+    }
+    
+    // Search activities
+    searchActivities(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        return this.history.filter(activity => 
+            (activity.query && activity.query.toLowerCase().includes(term)) ||
+            (activity.categories && activity.categories.some(cat => cat.toLowerCase().includes(term))) ||
+            (activity.userId && activity.userId.toLowerCase().includes(term))
+        ).reverse();
+    }
+    
+    // Clear history (admin only)
+    async clearHistory() {
+        const backupFile = `${this.historyFile}.backup_${Date.now()}`;
+        
+        try {
+            // Backup before clearing
+            await fs.copyFile(this.historyFile, backupFile);
+            
+            this.history = [];
+            await this.saveHistory();
+            
+            console.log(`🗑️ History cleared. Backup saved to ${backupFile}`);
+            
+            return {
+                success: true,
+                backedUpTo: backupFile,
+                clearedEntries: this.history.length
+            };
+        } catch (error) {
+            console.error('Failed to clear history:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    // Export history (for dark analysis)
+    async exportHistory(format = 'json') {
+        const exportFile = path.join(__dirname, `../exports/darkgpt_export_${Date.now()}.${format}`);
+        
+        try {
+            await fs.mkdir(path.join(__dirname, '../exports'), { recursive: true });
+            
+            if (format === 'json') {
+                await fs.writeFile(exportFile, JSON.stringify(this.history, null, 2), 'utf8');
+            } else if (format === 'csv') {
+                const csvLines = ['timestamp,userId,type,categories,query'];
+                this.history.forEach(activity => {
+                    const escapedQuery = (activity.query || '').replace(/"/g, '""');
+                    const line = `"${activity.timestamp}","${activity.userId || ''}","${activity.type || ''}","${(activity.categories || []).join(';')}","${escapedQuery}"`;
+                    csvLines.push(line);
+                });
+                await fs.writeFile(exportFile, csvLines.join('\n'), 'utf8');
+            } else if (format === 'txt') {
+                const txtLines = this.history.map(activity => 
+                    `[${activity.timestamp}] ${activity.userId || 'anonymous'}: ${activity.query?.substring(0, 200) || 'No query'}`
+                );
+                await fs.writeFile(exportFile, txtLines.join('\n'), 'utf8');
+            }
+            
+            return {
+                success: true,
+                file: exportFile,
+                entries: this.history.length,
+                format
+            };
+        } catch (error) {
+            console.error('Failed to export history:', error);
+            return { success: false, error: error.message };
+        }
+    }
+}
+
+module.exports = DarkHistory;
